@@ -1,0 +1,23 @@
+# Gera a pasta ocr/ (bibliotecas do OCR local) e a envia ao repositório. Rode UMA vez, pelo celular mesmo:
+# GitHub → aba Actions → "Instalar OCR local" → Run workflow. Quando terminar, a Vercel publica sozinha.
+name: Instalar OCR local
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  ocr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Baixar e copiar o OCR
+        working-directory: ferramentas
+        run: npm install && npm run ocr
+      - name: Enviar a pasta ocr/ ao repositório
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add -f ocr
+          git diff --cached --quiet || git commit -m "OCR local: adiciona pasta ocr/"
+          git push
